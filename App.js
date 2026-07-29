@@ -1,35 +1,43 @@
 import React from 'react';
 import { SafeAreaView, View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-function HomeBar() {
+import BienvenidaScreen from './BienvenidaScreen';
+
+// HomeBar conectada
+function HomeBar({ state, navigation }) {
+  const icons = {
+    Bienvenida: 'home',
+    Perfil: 'person',
+  };
+
   return (
     <View style={styles.homeBar}>
-      <TouchableOpacity style={styles.tabItem}>
-        <Ionicons name="person" size={24} color="#AB21D9" />
-        <Text style={styles.tabText}>Perfil</Text>
-      </TouchableOpacity>
+      {state.routes.map((route, index) => {
+        const isFocused = state.index === index;
+        const color = isFocused ? '#AB21D9' : '#999';
 
-      <TouchableOpacity style={styles.tabItem}>
-        <Ionicons name="add-circle" size={24} color="#AB21D9" />
-        <Text style={styles.tabText}>Anadir</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.tabItem}>
-        <Ionicons name="chatbubble" size={24} color="#AB21D9" />
-        <Text style={styles.tabText}>Mensajes</Text>
-      </TouchableOpacity>
+        return (
+          <TouchableOpacity
+            key={route.key}
+            style={styles.tabItem}
+            onPress={() => navigation.navigate(route.name)}
+          >
+            <Ionicons name={icons[route.name]} size={24} color={color} />
+            <Text style={[styles.tabText, { color }]}>{route.name}</Text>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 }
 
-export default function PerfilScreen() {
+function PerfilScreen() {
   return (
     <SafeAreaView style={styles.container}>
-
-      {/* Contenido que se estira y deja la HomeBar fija abajo */}
       <View style={{ flex: 1 }}>
-
         <View style={styles.headerContainer}>
           <Image
             source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdYaO_VT30riofCjEm1-tXGUb3vxR_fXuA9RpF5masY4fzfZzB90jpwgo&s=10' }}
@@ -45,12 +53,24 @@ export default function PerfilScreen() {
         <TouchableOpacity style={styles.botonEditar}>
           <Text style={styles.botonTexto}>Editar Perfil</Text>
         </TouchableOpacity>
-
       </View>
-
-      <HomeBar />
-
     </SafeAreaView>
+  );
+}
+
+const Tab = createBottomTabNavigator();
+
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Tab.Navigator
+        screenOptions={{ headerShown: false }}
+        tabBar={(props) => <HomeBar {...props} />}
+      >
+        <Tab.Screen name="Bienvenida" component={BienvenidaScreen} />
+        <Tab.Screen name="Perfil" component={PerfilScreen} />
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 }
 
